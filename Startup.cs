@@ -13,6 +13,8 @@ namespace web1
 {
     public class Startup
     {
+        static ReaderWriterLockSlim lock1 = new ReaderWriterLockSlim();
+
         // This method gets called by the runtime. Use this method to add services to the container.
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services) { }
@@ -27,6 +29,17 @@ namespace web1
 
             app.Run(async(context) =>
             {
+                lock1.EnterWriteLock();
+
+                try
+                {
+                    await File.AppendAllTextAsync("G:\\a.log", DateTime.Now + "\n");
+                }
+                finally
+                {
+                    lock1.ExitWriteLock();
+                }
+
                 await context.Response.WriteAsync("Hello World!");
             });
         }
